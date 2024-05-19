@@ -85,7 +85,7 @@ Meteor.methods({
         }
         console.log('configurations to be loaded:', configList);
 
-        let configData = {}
+        var configData = {}
         for (let fn of configList) {
           let data;
           try {
@@ -108,6 +108,43 @@ Meteor.methods({
 
 				var list = {toolId: tool_id, versionId: version_id, data: configData };
 				Meteor.call("importAjooConfiguration", list);
+
+
+				var shacl_tool = {name: "ViziShapes",
+									createdAt: new Date,
+									createdBy: user_id,
+									documents: true,
+									archive: true,
+									analytics: true,
+									users: true,
+									forum: true,
+									tasks: true,
+									training: true,
+								};
+
+				var shacl_tool_id = Tools.insert(shacl_tool);
+				var shacl_version_id = ToolVersions.insert({createdAt: shacl_tool.createdAt,
+													createdBy: user_id,
+													status: "New",
+													toolId: shacl_tool_id,
+												});
+				configList = [ "SHACL_configuration.json" ];
+
+				configData = {}
+				for (let fn of configList) {
+				let data;
+				try {
+					data = JSON.parse(Assets.getText(`jsons/${fn}`));
+				} catch (err) {
+					console.error(`Error loading config file ${fn}; skipping it`);
+				}
+				if (data) configData = Object.assign(configData, data);
+				}
+
+				list = {toolId: shacl_tool_id, versionId: shacl_version_id, data: configData };
+				Meteor.call("importAjooConfiguration", list);
+
+
 			}
 
 			return id;

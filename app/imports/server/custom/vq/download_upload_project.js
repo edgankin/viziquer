@@ -98,6 +98,12 @@ Meteor.methods({
 		uploadProject(list)
 	},
 
+
+	insertElementsData: function(list) {
+		//console.log(list);
+		insertElements(list.diagram, list.tool_id, list.project_id, list.version_id, list.diagram_id, list.diagram_type);
+	}
+
 });
 
 function uploadProject(list) {
@@ -187,7 +193,6 @@ function uploadProject(list) {
 
 				var tool_id = tool._id;
 
-				var elements = diagram.elements;
 				delete diagram.elements;
 				delete diagram._id;
 
@@ -214,98 +219,108 @@ function uploadProject(list) {
 
 				var diagram_id = Diagrams.insert(diagram);
 
-				var elem_map = {};
-
-				_.each(elements, function(element) {
-
-					var old_elem_id = element._id;
-
-					var compartments = element.compartments;
-					delete element.compartments;
-					delete element._id;
-
-					var elem_type_id = element.elementTypeId;
-
-					var element_type = ElementTypes.findOne({_id: elem_type_id, toolId: tool_id,});
-					if (!element_type) {
-
-						//element_type = ElementTypes.findOne({_id: elem_type_id,});
-						if (!element_type) {
-
-							var element_type_name = element.elementTypeName;
-							element_type = ElementTypes.findOne({name: element_type_name,
-																	toolId: tool_id,
-																	diagramTypeId: diagram_type._id,
-																});
-
-							if (!element_type) {
-								console.error("No ElementType", elem_type_id);
-								return;
-							}
-						}
-					}
-
-					_.extend(element, {projectId: project_id,
-										versionId: version_id,
-										diagramId: diagram_id,
-										elementTypeId: element_type._id,
-										diagramTypeId: diagram_type._id,
-										toolId: tool_id,
-									});
-					
-					if (element.type == "Line") {
-						_.extend(element, {startElement: elem_map[element.startElement],
-											endElement: elem_map[element.endElement],
-										});
-					}
-
-					var element_id = Elements.insert(element);
-					
-					elem_map[old_elem_id] = element_id;
-
-					_.each(compartments, function(compartment) {
-						delete compartment._id;
-
-						var compart_type_id = compartment.compartmentTypeId;
-
-						var compart_type = CompartmentTypes.findOne({_id: compart_type_id, toolId: tool_id,});
-						if (!compart_type) {
-
-							//compart_type = CompartmentTypes.findOne({_id: compart_type_id,});
-							if (!compart_type) {
-
-								var compart_type_name = compartment.compartmentTypeName;
-								compart_type = CompartmentTypes.findOne({name: compart_type_name,
-																			toolId: tool_id,
-																			diagramTypeId: diagram_type._id,
-																			elementTypeId: element_type._id,
-																		});
-
-								if (!compart_type) {
-									console.error("No CompartmentType", compart_type_id);
-									return;
-								}
-							}
-						}
-
-						_.extend(compartment, {projectId: project_id,
-												versionId: version_id,
-												diagramId: diagram_id,
-												elementId: element_id,
-												compartmentTypeId: compart_type._id,
-
-												elementTypeId: element_type._id,
-												diagramTypeId: diagram_type._id,
-												toolId: tool_id,
-											});
-
-						Compartments.insert(compartment);
-					});
-				
-				});
+				insertElements(diagram, tool_id, project_id, version_id, diagram_id, diagram_type);
 			});
 			
 		}
 }
 
+function insertElements(diagram, tool_id, project_id, version_id, diagram_id, diagram_type) {
+	console.log("insertElements: " + diagram.elements.length);
+	// console.log(diagram_type);
+	var elements = diagram.elements;
+
+	var elem_map = {};
+
+	_.each(elements, function(element) {
+
+		var old_elem_id = element._id;
+
+		var compartments = element.compartments;
+		delete element.compartments;
+		delete element._id;
+
+		var elem_type_id = element.elementTypeId;
+
+		var element_type = ElementTypes.findOne({_id: elem_type_id, toolId: tool_id,});
+		if (!element_type) {
+
+			//element_type = ElementTypes.findOne({_id: elem_type_id,});
+			if (!element_type) {
+
+				var element_type_name = element.elementTypeName;
+				element_type = ElementTypes.findOne({name: element_type_name,
+														toolId: tool_id,
+														diagramTypeId: diagram_type._id,
+													});
+
+				if (!element_type) {
+					console.error("No ElementType", elem_type_id);
+					return;
+				}
+			}
+		}
+
+		_.extend(element, {projectId: project_id,
+							versionId: version_id,
+							diagramId: diagram_id,
+							elementTypeId: element_type._id,
+							diagramTypeId: diagram_type._id,
+							toolId: tool_id,
+						});
+		
+		if (element.type == "Line") {
+			_.extend(element, {startElement: elem_map[element.startElement],
+								endElement: elem_map[element.endElement],
+							});
+		}
+
+		var element_id = Elements.insert(element);
+
+		// const delay = ms => new Promise(res => setTimeout(res, ms));
+        // await delay(1000);
+		
+		elem_map[old_elem_id] = element_id;
+
+		_.each(compartments, function(compartment) {
+			delete compartment._id;
+
+			var compart_type_id = compartment.compartmentTypeId;
+
+			var compart_type = CompartmentTypes.findOne({_id: compart_type_id, toolId: tool_id,});
+			if (!compart_type) {
+
+				//compart_type = CompartmentTypes.findOne({_id: compart_type_id,});
+				if (!compart_type) {
+
+					var compart_type_name = compartment.compartmentTypeName;
+					compart_type = CompartmentTypes.findOne({name: compart_type_name,
+																toolId: tool_id,
+																diagramTypeId: diagram_type._id,
+																elementTypeId: element_type._id,
+															});
+
+					if (!compart_type) {
+						console.error("No CompartmentType", compart_type_id);
+						return;
+					}
+				}
+			}
+
+			_.extend(compartment, {projectId: project_id,
+									versionId: version_id,
+									diagramId: diagram_id,
+									elementId: element_id,
+									compartmentTypeId: compart_type._id,
+
+									elementTypeId: element_type._id,
+									diagramTypeId: diagram_type._id,
+									toolId: tool_id,
+								});
+
+			Compartments.insert(compartment);
+		});
+	
+	});
+}
 

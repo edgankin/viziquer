@@ -12,6 +12,7 @@ import '/imports/client/custom/vq/templates/dump.js'
 import '/imports/client/custom/vq/templates/explain_field_form.js'
 import '/imports/client/custom/vq/templates/explain_link_form.js'
 import '/imports/client/custom/vq/templates/sparql_form.js'
+import '/imports/client/custom/vq/templates/shacl_form.js'
 import '/imports/client/custom/vq/templates/SchemaTree.js'
 import '/imports/client/custom/vq/templates/VQ_DSS_schema.js'
 

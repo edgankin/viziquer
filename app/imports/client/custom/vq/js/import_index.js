@@ -2,6 +2,7 @@ import '/imports/client/custom/vq/js/autoCompletion.js'
 import '/imports/client/custom/vq/js/genAbstractQuery.js'
 import '/imports/client/custom/vq/js/generateSPARQL_jo'
 import '/imports/client/custom/vq/js/generateSQL.js'
+import '/imports/client/custom/vq/js/visualizeSHACL.js'
 import '/imports/client/custom/vq/js/generateVisualQuery.js'
 import '/imports/client/custom/vq/js/transformations.js'
 

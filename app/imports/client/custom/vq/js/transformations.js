@@ -774,6 +774,13 @@ Interpreter.customMethods({
 		}
 		namespaceInput.value = namespaceInputValue;	
 	},
+
+	VisualizeSHACL: function(q) {
+		let yasqe3 = Template.shaclForm.yasqe3.get();
+		var shacl_text = yasqe3.getValue();
+
+		Interpreter.customExtensionPoints.generateVisualSHACL(shacl_text);
+	},
 		
 	visualizeSPARQL: function(q) {
 		let x = 10;

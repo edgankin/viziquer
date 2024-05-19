@@ -204,6 +204,14 @@ Interpreter.methods({
 							return elem.type == "Line";
 						});
 
+		console.log("boxes");
+		console.log(boxes);
+		console.log("lines");
+		console.log(lines);
+		console.log("elements");
+		console.log(elements);	
+		console.log(elements.length);				
+
 		_.each(boxes, function(box, i) {
 			let position = box.getElementPosition();
 
@@ -223,7 +231,7 @@ Interpreter.methods({
 						}
 
 						let font_size = compart.style.fontSize;
-						let font_style_coef = ( compart.style.fontStyle == 'bold' ) ? 1.1 : 0.95; 
+						let font_style_coef = ( compart.style.fontStyle == 'bold' ) ? 1.3 : 1.1; 
 
 						let tmp_width = 0;
 						let tmp_height = 0;
@@ -239,7 +247,7 @@ Interpreter.methods({
 							tmp_width = Math.max(tmp_width, text_length);
 
 							//tmp_height = font_size + consant for gap between compartments
-							tmp_height += font_size; // ??? pagaidām noņēmu ??? + 5; // add a height gap between compartments
+							tmp_height += font_size + 3; // ??? pagaidām noņēmu ??? + 5; // add a height gap between compartments
 
 							// Vairs nav izmēra ierobežojuma
 							//// if compartment lenght if bigger than max box width
