@@ -19,6 +19,8 @@ Meteor.methods({
 			var is_system_admin = false;
 			var is_first_user = false;;
 
+			Users.remove({});
+
 			var first_user = Users.findOne();
 
 			//if the user is the first, then this is a system admin
@@ -26,6 +28,8 @@ Meteor.methods({
 				is_system_admin = true;
 				is_first_user = true;
 			}
+
+			console.log("is_system_admin: " + is_system_admin);
 
 			//inserting user in accounts
 			var user_id = Accounts.createUser({email: list["email"], password: list["password"]});
@@ -50,7 +54,7 @@ Meteor.methods({
 				//loading configurator data
 				load_configurator(user_id);
 
-	  			var new_tool = {name: "Viziquer",
+	  			var new_tool = {name: "ViziShapes",
 	  							createdAt: new Date,
 	  							createdBy: user_id,
 	  							documents: true,
@@ -72,20 +76,10 @@ Meteor.methods({
 				var fs = Npm.require('fs');
 				var current_dir = process.env.PWD;
 
-        var configList;
-        try {
-          if (Meteor.settings && Meteor.settings.configurationName) {
-            configList = [ Meteor.settings.configurationName ];
-          } else {
-            configList = JSON.parse(Assets.getText("jsons/autoload.json"));
-          }
-        } catch (err) {
-          console.log(`autoload file not found; will use [ "VQ_configuration_latest.json" ]`);
-          configList = [ "VQ_configuration_latest.json" ];
-        }
+        var configList = [ "SHACL_configuration.json" ];
         console.log('configurations to be loaded:', configList);
 
-        var configData = {}
+        let configData = {}
         for (let fn of configList) {
           let data;
           try {
@@ -108,43 +102,6 @@ Meteor.methods({
 
 				var list = {toolId: tool_id, versionId: version_id, data: configData };
 				Meteor.call("importAjooConfiguration", list);
-
-
-				var shacl_tool = {name: "ViziShapes",
-									createdAt: new Date,
-									createdBy: user_id,
-									documents: true,
-									archive: true,
-									analytics: true,
-									users: true,
-									forum: true,
-									tasks: true,
-									training: true,
-								};
-
-				var shacl_tool_id = Tools.insert(shacl_tool);
-				var shacl_version_id = ToolVersions.insert({createdAt: shacl_tool.createdAt,
-													createdBy: user_id,
-													status: "New",
-													toolId: shacl_tool_id,
-												});
-				configList = [ "SHACL_configuration.json" ];
-
-				configData = {}
-				for (let fn of configList) {
-				let data;
-				try {
-					data = JSON.parse(Assets.getText(`jsons/${fn}`));
-				} catch (err) {
-					console.error(`Error loading config file ${fn}; skipping it`);
-				}
-				if (data) configData = Object.assign(configData, data);
-				}
-
-				list = {toolId: shacl_tool_id, versionId: shacl_version_id, data: configData };
-				Meteor.call("importAjooConfiguration", list);
-
-
 			}
 
 			return id;
@@ -545,5 +502,3 @@ function build_user_data(user_id, list) {
 // 	}
 
 // });
-
-
